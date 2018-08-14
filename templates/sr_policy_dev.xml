@@ -1,0 +1,44 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+    <devices xmlns="http://tail-f.com/ns/ncs">
+        <device tags="merge">
+            <name>{$PE}</name>
+            <config>
+                <segment-routing xmlns="http://tail-f.com/ned/cisco-ios-xr">
+                    <traffic-eng>
+			<segment-list>
+				<name>{$segment_list_name}</name>
+                         		<index>
+                           			<id>{$index}</id>
+                           			<mpls>
+                             				<label>{$sid}</label>
+                           			</mpls>
+                         		</index>
+                        </segment-list>
+                        <policy>
+                            <name>{policy_name}</name>
+                            <binding-sid>
+                              <mpls>{$binding_mpls_sid}</mpls>
+                            </binding-sid>
+                            <color>
+                                <value>{$color}</value>
+                                <end-point>
+                                    <ipv4>{$pe_des_ip_address}</ipv4>
+                                </end-point>
+                            </color>
+                            <candidate-paths>
+                                <preference>
+                                    <id>{$preference_id}</id>
+                                    <explicit>
+                                        <segment-list>
+                                            <name>{$segment_list_name}</name>
+                                        </segment-list>
+                                    </explicit>
+                                </preference>
+                            </candidate-paths>
+                        </policy>
+                    </traffic-eng>
+                </segment-routing>
+            </config>
+        </device>
+    </devices>
+</config-template>

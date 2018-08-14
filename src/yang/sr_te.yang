@@ -1,0 +1,57 @@
+module sr_te {
+
+  namespace "http://example.com/sr_te";
+  prefix sr_te;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import tailf-common {
+    prefix tailf;
+  }
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+
+  revision 2018-07-27 {
+    description
+      "Initial revision.";
+  }
+  
+  container sr-policy-service{
+    list policy{
+        uses ncs:service-data;
+        ncs:servicepoint "sr_te";
+        key policy_name;
+        leaf policy_name {
+                    type string;
+                    mandatory true;
+                }
+        leaf src_pe_name {
+             type string;
+             mandatory true;
+         }
+
+        leaf pe_des_ip_address {
+                    type string;
+                    mandatory true;
+                }
+
+        leaf color {
+                    type uint32;
+                    mandatory true;
+                }
+
+        leaf preference {
+                    type uint32;
+                    mandatory true;
+              }
+
+        leaf binding_mpls_sid {
+                    type uint16;
+                    mandatory true;
+              }
+           }
+   }
+}
