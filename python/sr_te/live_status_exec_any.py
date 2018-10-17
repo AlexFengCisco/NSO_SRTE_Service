@@ -18,3 +18,5 @@ with ncs.maapi.Maapi() as m:
              result=ping_output.result
 
 print result
+
+

@@ -16,6 +16,11 @@ import requests
 from requests.auth import HTTPBasicAuth
 import json
 
+
+def _get_device_type(root,device):
+    modules = root.devices.device[device].module.keys()
+    return (modules[2])
+
 # ------------------------
 # SERVICE CALLBACK EXAMPLE  
 # ------------------------
@@ -30,7 +35,12 @@ class ServiceCallbacks(Service):
 
     
     def config_sr_policy(self, tctx, root, service):
-
+        
+        #get device type from input pe name
+        device_type = _get_device_type(root,service.src_pe_name)
+        self.log.info('device type is :',device_type)
+        
+        
         #RPC rest call get SID list from WAE
     	JSON_HEADERS = {"Content-Type": "application/vnd.yang.operation+json",
                         "Accept": "application/vnd.yang.data+json"}
