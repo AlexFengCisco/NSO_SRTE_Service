@@ -32,77 +32,77 @@ class ServiceCallbacks(Service):
     def config_sr_policy(self, tctx, root, service):
 
         #RPC rest call get SID list from WAE
-	JSON_HEADERS = {"Content-Type": "application/vnd.yang.operation+json",
-                    "Accept": "application/vnd.yang.data+json"}
-
-	sr_te_metric= "te"
-
-	api = "http://10.75.58.27:8080/api/running/networks/network/DARE/opm/te-path/_operations/run"
-	payload = {
-            "input": {
-                "source-node": service.src_pe_name,
-                "destination-node": "R4",
-                "te-type": "segment_routing",
-                "metric": sr_te_metric
+    	JSON_HEADERS = {"Content-Type": "application/vnd.yang.operation+json",
+                        "Accept": "application/vnd.yang.data+json"}
+    
+    	sr_te_metric= "te"
+    
+    	api = "http://10.75.58.27:8080/api/running/networks/network/DARE/opm/te-path/_operations/run"
+    	payload = {
+                "input": {
+                    "source-node": service.src_pe_name,
+                    "destination-node": "R4",
+                    "te-type": "segment_routing",
+                    "metric": sr_te_metric
+                }
+    
             }
-
-        }
-
-	response = requests.post(api, data=json.dumps(payload), headers=JSON_HEADERS,auth=HTTPBasicAuth('admin', 'admin'))
-
-	if response.status_code != 200:
-    		print "HTTP pos request failed!"
-		self.log.info('HTTP POST request failed')
-	else:
-    		print str(response.json())
-		self.log.info('Response content %s'%response.json())
-	
-	
-	segment_list = response.json()
-	'''
-	segment_list = {
- 			 "cisco-wae-opm-te-path:output": {
-        		"status": "true",
-        		"message": "success",
-        		"segment_list": [
-            			"16002",
-            			"16005",
-            			"16006"
-        			]
-    			}
-		}
-	'''
+    
+    	response = requests.post(api, data=json.dumps(payload), headers=JSON_HEADERS,auth=HTTPBasicAuth('admin', 'admin'))
+    
+    	if response.status_code != 200:
+        	print "HTTP pos request failed!"
+    		self.log.info('HTTP POST request failed')
+    	else:
+        	print str(response.json())
+    		self.log.info('Response content %s'%response.json())
+    	
+    	
+    	segment_list = response.json()
+    	'''
+    	segment_list = {
+     			 "cisco-wae-opm-te-path:output": {
+            		"status": "true",
+            		"message": "success",
+            		"segment_list": [
+                			"16002",
+                			"16005",
+                			"16006"
+            			]
+        			}
+    		}
+    	'''
         index_start = 0
         index_interval = 10
-
-	hops = segment_list["cisco-wae-opm-te-path:output"]["segment_list"]
+    
+    	hops = segment_list["cisco-wae-opm-te-path:output"]["segment_list"]
         sl_name = service.policy_name
-	rt_str = {"segment_routing_list_name": sl_name, "hops": []}
-	
+    	rt_str = {"segment_routing_list_name": sl_name, "hops": []}
+    	
         path_index = index_start
-	for hop in hops:
-		path = {}
-		path_index += index_interval
-		path["index"] = path_index
-		path["label"] = int(hop)
-		rt_str["hops"].append(path)
-
+    	for hop in hops:
+    		path = {}
+    		path_index += index_interval
+    		path["index"] = path_index
+    		path["label"] = int(hop)
+    		rt_str["hops"].append(path)
+    
         self.log.info('Construct segment routing list %s'%str(rt_str))
-
-	#apply variable to template seg_list_dev.xml
-			
-	for path in rt_str["hops"]:
-		variables = ncs.template.Variables()
-		template = ncs.template.Template(service)
-		variables.add("PE",service.src_pe_name)
-		variables.add("segment_list_name",service.policy_name)
-		variables.add("index",path["index"])
-		variables.add("sid",path["label"])
-		#template.apply("sr_policy_dev",variables)
-        	#Create segment routing te policy
-		#self.log.info('Create router segment routing traffic engineering policy')
-		#variables = ncs.template.Variables()
-        	#template = ncs.template.Template(service)
+    
+    	#apply variable to template seg_list_dev.xml
+    			
+    	for path in rt_str["hops"]:
+    		variables = ncs.template.Variables()
+    		template = ncs.template.Template(service)
+    		variables.add("PE",service.src_pe_name)
+    		variables.add("segment_list_name",service.policy_name)
+    		variables.add("index",path["index"])
+    		variables.add("sid",path["label"])
+    		#template.apply("sr_policy_dev",variables)
+            	#Create segment routing te policy
+    		#self.log.info('Create router segment routing traffic engineering policy')
+    		#variables = ncs.template.Variables()
+            	#template = ncs.template.Template(service)
         
 
         	variables.add("PE", service.src_pe_name)
